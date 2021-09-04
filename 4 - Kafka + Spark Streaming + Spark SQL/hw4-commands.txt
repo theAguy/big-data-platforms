@@ -1,0 +1,52 @@
+####################################################################################################
+#### OPTION 1 #### Working with the old spark and KafkaUtils (like in the assignment "Tips" section)
+####################################################################################################
+
+#1. Create EC2 and connect to it
+
+#2. Run this command to install ALL libraries
+sudo apt update && sudo apt install -y python python3-pip openjdk-8-jdk && pip3 install pykafka tweepy pyspark kafka_python && wget https://archive.apache.org/dist/kafka/2.3.1/kafka_2.12-2.3.1.tgz && tar xzf kafka_2.12-2.3.1.tgz && mv kafka_2.12-2.3.1 kafka && wget https://downloads.apache.org/spark/spark-2.4.8/spark-2.4.8-bin-hadoop2.7.tgz && tar -xzf spark-2.4.8-bin-hadoop2.7.tgz && mv spark-2.4.8-bin-hadoop2.7 spark 
+
+
+#3. start the processes, each in a new terminal (shell not python)
+
+#start ZK
+./kafka/bin/zookeeper-server-start.sh ./kafka/config/zookeeper.properties
+
+#start kafka
+./kafka/bin/kafka-server-start.sh ./kafka/config/server.properties
+
+#start pulling from twitter and pushing to kafka
+python3 push_kafka.py 
+
+#start reading from kafka and printing to console
+spark/bin/spark-submit --packages org.apache.spark:spark-streaming-kafka-0-8_2.11:2.4.8 kafka_to_spark.py 
+
+### This should work with the OLDER Spark approach using KafkaUtils https://spark.apache.org/docs/1.3.1/streaming-kafka-integration.html
+
+####################################################################################################
+#### OPTION 2 #### #Working with the new Spark and Kafka - Structured Streaming ("...readstream...")
+####################################################################################################
+
+#1. Create EC2 and connect to it
+
+#2. Run this command to install ALL libraries (different Spark and Kafka versions)
+
+sudo apt update && sudo apt install -y python python3-pip openjdk-8-jdk && pip3 install pykafka tweepy pyspark kafka_python && wget https://archive.apache.org/dist/kafka/2.8.0/kafka_2.13-2.8.0.tgz && tar xzf kafka_2.13-2.8.0.tgz && mv kafka_2.13-2.8.0 kafka && wget https://downloads.apache.org/spark/spark-3.1.1/spark-3.1.1-bin-hadoop2.7.tgz && tar -xzf spark-3.1.1-bin-hadoop2.7.tgz && mv spark-3.1.1-bin-hadoop2.7 spark 
+
+#3. start the processes, each in a new terminal (shell not python)
+
+#start ZK
+./kafka/bin/zookeeper-server-start.sh ./kafka/config/zookeeper.properties
+
+#start kafka
+./kafka/bin/kafka-server-start.sh ./kafka/config/server.properties
+
+#start pulling from twitter and pushing to kafka
+python3 push_kafka.py 
+
+#start reading from kafka and printing to console (NOTE the different spark package in the following command !!!)
+spark/bin/spark-submit --packages org.apache.spark:spark-sql-kafka-0-10_2.12:3.1.2 kafka_to_spark.py
+
+
+This should work with the "spark.readStream" option: https://spark.apache.org/docs/latest/structured-streaming-kafka-integration.html
