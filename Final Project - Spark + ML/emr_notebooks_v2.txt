@@ -1,0 +1,46 @@
+#######################################################################################
+# Instructions to run PySpark on JupyterLab on EMR 6.3 (spark 3.1.1) ##################
+#######################################################################################
+#(1) when creating EMR - add to the components also the "Jupyter Express Gateway !!! Hive , Livy, Spark, Hadoop"
+
+#(2) Connect to the EMR Master node (mobaxterm)
+
+#(3) install kaggle
+sudo yum update -y && sudo python3 -m pip install kaggle && mkdir .kaggle
+
+#(3.5) Copy the .kaggle to .kaggle directory
+
+echo '{"username":"guyassa","key":"01f262ffbee65b00b91ca894e7a3f964"}' > ~/.kaggle/kaggle.json
+
+#(4) download kaggle data
+kaggle competitions download -c idc-big-data-platforms-2021-ml-competition && unzip idc-big-data-platforms-2021-ml-competition.zip
+
+#(5) put files on hdfs
+hadoop fs -put -f idc_train.csv
+
+hadoop fs -put -f idc_test.csv
+
+#(6) Connect to Jupyter Lab from AWS console (create a notebook, then open jupyter lab "blue button")
+
+#(7) upload your notebook to Jup lab
+
+#(8) Issues with EMR notebooks: Comment put all magic cells %%time.... didn't work, also "!" for pip install didn't work...
+
+#(9) Change file paths in notebook to "hdfs" path: /user/hadoop/idc_train.csv and /user/hadoop/idc_test.csv
+
+#(10) In your notebook select Kernel PySpark !!!, and then use this code to init spark (you can change the 24g to less or more if you have enough RAM):
+from pyspark.sql import SparkSession, SQLContext
+from pyspark import SparkConf, SparkContext
+conf = SparkConf()
+conf.set("spark.executor.memory", "24g")
+conf.set("spark.driver.memory", "24g")
+conf.set("spark.sql.session.timeZone","UTC")
+spark_context = SparkContext.getOrCreate(conf)
+spark = SparkSession(spark_context)
+sc=spark.sparkContext
+sqlContext=SQLContext(sc)
+
+#(11) To install additional "pip" libraries in your notebook using: 
+sc.install_pypi_package("pycm")
+
+jupyter notebook --NotebookApp.allow_origin='https://colab.research.google.com' --port=8888 --NotebookApp.port_retries=0
