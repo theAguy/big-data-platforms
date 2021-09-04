@@ -1,0 +1,3 @@
+In the project, using Spark for data ingestion, preprocessing, exploration and building a machine learning mode,
+we built a classification machine learning model that tries to predict if the fare is lower or higher then $10. 
+(dateset - contains historical data about Uber rides in New York City) 
